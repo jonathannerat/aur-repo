@@ -13,7 +13,7 @@ source=('https://developer.apple.com/design/downloads/SF-Mono.dmg'
         "https://raw.githubusercontent.com/ryanoasis/nerd-fonts/v$pkgver/font-patcher"
         "svn+https://github.com/ryanoasis/nerd-fonts/tags/v$pkgver/src/glyphs")
 sha256sums=('d91ed5d03a249b515dd1ba9aba7127dcd85bd1c7d2a3a7687531524b6d9a6a6d'
-            'd5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed'
+            '3377615be4271f8bdeef66e6f2f82ac3f3cfb7b5677abe7b8e189409da048859'
             'SKIP')
 
 build() {
