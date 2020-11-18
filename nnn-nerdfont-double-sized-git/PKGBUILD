@@ -1,6 +1,6 @@
 # Mantainer: jonathan.nerat@gmail.com
 _pkgname=nnn
-pkgname=nnn-git
+pkgname=nnn-nerdfont-double-sized-git
 pkgver=v3.4.r93.1c4bc31
 pkgrel=1
 pkgdesc='git build of nnn patched for double-sized Nerd Fonts icon support'
