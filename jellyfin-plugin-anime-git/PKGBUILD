@@ -1,0 +1,35 @@
+# This is an example PKGBUILD file. Use this as a start to creating your own,
+# and remove these comments. For more information, see 'man PKGBUILD'.
+# NOTE: Please fill out the license field for your package! If it is unknown,
+# then please put 'unknown'.
+
+# Maintainer: Your Name <youremail@domain.com>
+pkgname=jellyfin-plugin-anime
+pkgver=10.0.0
+pkgrel=1
+epoch=
+pkgdesc="Anime Metadata Provider for Jellyfin. Git version"
+arch=('i686' 'x86_64' 'armv64')
+url="https://github.com/jellyfin/jellyfin-plugin-anime"
+license=('GPL2')
+depends=(jellyfin)
+makedepends=('dotnet-sdk>=3')
+provides=(jellyfin-plugin-anime)
+source=("git+$url")
+sha256sums=(SKIP)
+
+prepare() {
+	cd "$srcdir/jellyfin-plugin-anime"
+	sed -i 's/\.\*-\*/\.\*/' Jellyfin.Plugin.Anime/Jellyfin.Plugin.Anime.csproj
+}
+
+build() {
+	cd "$srcdir/jellyfin-plugin-anime"
+	export DOTNET_CLI_TELEMETRY_OUTPUT=1
+	dotnet publish --configuration Release --output bin
+}
+
+package() {
+	cd "$srcdir/jellyfin-plugin-anime"
+	install -Dm664 bin/Jellyfin.Plugin.Anime.dll -t "$pkgdir/var/lib/jellyfin/plugins"
+}
