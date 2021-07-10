@@ -1,0 +1,58 @@
+# Maintainer: Josip Ponjavic <josipponjavic at gmail dot com>
+# Contributor: Jonathan Teran <jonathan.nerat at gmail dot com>
+
+pkgname=nnn-nerd-dirjump-git
+pkgver=4.1.1.r104.gc0dceb18
+pkgrel=1
+pkgdesc="Custom build of nnn with Nerd Fonts and directory jumper support"
+arch=(x86_64)
+url='https://github.com/jarun/nnn'
+license=(BSD)
+depends=('bash')
+optdepends=(
+  'atool: for more archive formats'
+  'libarchive: for more archive formats'
+  'zip: for zip archive format'
+  'unzip: for zip archive format'
+  'trash-cli: to trash files'
+  'sshfs: mount remotes'
+  'rclone: mount remotes'
+  'fuse2: unmount remotes'
+  'xdg-utils: desktop opener'
+  'zoxide: directory jumper'
+  'autojump: directory jumper'
+  'z: directory jumper'
+)
+makedepends=(git)
+provides=(nnn)
+conflicts=(nnn)
+source=("git+${url}.git"
+        "nnn_dirjumper_on_cd.patch")
+md5sums=('SKIP'
+         '5dd3fed2020509dbb3597d55a85592f4')
+
+pkgver() {
+  cd nnn
+  git describe --long --tags | sed -r 's/([^-]*-g)/r\1/;s/-/./g;s/v//g'
+}
+
+prepare() {
+  sed -i 's/install: all/install:/' nnn/Makefile
+  patch -p1 -i '../nnn_dirjumper_on_cd.patch'
+}
+
+build() {
+  cd nnn
+  make O_NERD=1
+}
+
+package() {
+  cd nnn
+  make DESTDIR="${pkgdir}" PREFIX=/usr install
+
+  install -Dm644 misc/auto-completion/fish/nnn.fish "${pkgdir}/usr/share/fish/vendor_completions.d/nnn.fish"
+  install -Dm644 misc/auto-completion/bash/nnn-completion.bash "${pkgdir}/usr/share/bash-completion/completions/nnn"
+  install -Dm644 misc/auto-completion/zsh/_nnn "${pkgdir}/usr/share/zsh/site-functions/_nnn"
+
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
