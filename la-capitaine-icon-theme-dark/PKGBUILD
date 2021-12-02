@@ -1,0 +1,42 @@
+# Maintainer: Jonathan Teran <jonathan.nerat at gmail dot com>
+#
+# Contributor: now-im <now.im.627@gmail.com>
+
+_pkgname=la-capitaine-icon-theme
+pkgname=$_pkgname-dark
+pkgver=0.6.2
+pkgrel=2
+pkgdesc="La Capitaine is an icon pack — designed to integrate with most desktop environments. (dark variant)"
+arch=('any')
+url="https://github.com/keeferrourke/$_pkgname"
+license=('GPL3')
+optdepends=('elementary-icon-theme' 'breeze-icons' 'gnome-icon-theme')
+conflicts=('la-capitaine-icon-theme-git')
+source=("https://github.com/keeferrourke/$_pkgname/archive/v$pkgver.tar.gz"
+        'configure-noninteractive.patch'
+        'index.theme.patch')
+sha256sums=('e63e4bc97a7bbf4db71f17fa3b1c71086e3ed8b1dc44b4d10f95d97aa7db2c9d'
+            '975a1d4e93a72e0fa3646438ab087e3cd27a375acc99fbf426beaad339dbce1b'
+            '808821ef0fc326fa7aed3150bd42fb9666c5813b6679b5ad121e5dfd0c108789')
+
+prepare() {
+  cd "$_pkgname-$pkgver"
+  patch -p1 -i "$srcdir/configure-noninteractive.patch"
+  patch -p1 -i "$srcdir/index.theme.patch"
+  ./configure --dark-icons --dark-panel-icons --distro-logo
+}
+
+package() {
+  install -dm 755 "${pkgdir}"/usr/share/icons
+  cp -dr --no-preserve='ownership' $_pkgname-$pkgver "${pkgdir}"/usr/share/icons/la-capitaine
+
+  find "${pkgdir}" -type d -exec chmod 755 {} +
+  find "${pkgdir}" -type f -exec chmod 644 {} +
+  find ${pkgdir}/usr -type f -name '.directory' -delete
+  rm -rf "$pkgdir/usr/share/icons/la-capitaine-dark/.gitignore"
+  rm -rf "$pkgdir/usr/share/icons/la-capitaine-dark/.git"
+  rm -rf "$pkgdir/usr/share/icons/la-capitaine-dark/.github"
+  rm -rf "$pkgdir/usr/share/icons/la-capitaine-dark/.product"
+}
+
+# vim: ts=2 sw=2 et:

@@ -1,0 +1,189 @@
+diff --git a/configure b/configure
+index d5e018b8..cae346af 100755
+--- a/configure
++++ b/configure
+@@ -72,6 +72,71 @@ alt_distromatch() {
+     fi
+ }
+ 
++use_icons() {
++	var="$1" # dark / light
++
++	rm "$wd/actions/22x22" "$wd/devices/scalable" "$wd/panel/16" \
++	"$wd/panel/24" "$wd/places/16x16" "$wd/status/scalable"
++
++	ln -sfr "$wd/actions/22x22-$var" "$wd/actions/22x22"
++	ln -sfr "$wd/devices/scalable-$var" "$wd/devices/scalable"
++	ln -sfr "$wd/emblems/scalable/avatar-default-$var.svg" "$wd/emblems/scalable/avatar-default.svg"
++	ln -sfr "$wd/places/16x16-$var" "$wd/places/16x16"
++	echo "Updated theme to use icons for $var GTK+ themes."
++}
++
++use_panel_icons() {
++	var="$1"
++	ln -sfr "$wd/panel/16-$var" "$wd/panel/16"
++	ln -sfr "$wd/panel/24-$var" "$wd/panel/24"
++	ln -sfr "$wd/status/scalable-$var" "$wd/status/scalable"
++	echo "Updated theme to use $var icons for the panel."
++}
++
++use_distro_logo () {
++	yn="$1"
++	if [ yn = "yes" ]; then
++		case $DE in
++			budgie|budgiegnome) ln -sf distributor-logo-budgie.svg distributor-logo.svg ;;
++			gnome) ln -sf distributor-logo-gnome.svg distributor-logo.svg ;;
++			unity) ln -sf distributor-logo-unity.svg distributor-logo.svg ;;
++			xfce) ln -sf distributor-logo-xfce.svg distributor-logo.svg ;;
++			lxde) ln -sf distributor-logo-lxde.svg distributor-logo.svg ;;
++			kde) ln -sf distributor-logo-kde.svg distributor-logo.svg ;;
++			*)
++					echo "Could not determine desktop environment... Using distribution logo."
++					de_error=1
++			;;
++		 esac
++	else
++		if [ $distro_error -eq 0 ]; then
++			echo "Using distribution logo."
++		elif [ $distro_error -eq 1 ] || [ $de_error -eq 1 ]; then
++			echo "Could not determine distributor logo, you may need to set this manually in places/scalable/"
++		fi
++	fi
++}
++
++interactive=no
++icons=light
++panel_icons=light
++distro_logo=no
++
++while [ $# -gt 0 ]; do
++	case "$1" in
++		--interactive)
++			interactive=yes ;;
++		--dark-icons)
++			icons=dark ;;
++		--dark-panel-icons)
++			panel_icons=dark ;;
++		--distro-logo)
++			distro_logo=yes ;;
++		*) >&2 echo "Unknown option $1."
++	esac
++	shift
++done
++
+ # define variables
+ # set distributor logo based on distro detected through lsb_release
+ DISTRO=$(format "$(lsb_release -si 2>/dev/null)")
+@@ -79,79 +144,45 @@ DE=$(format "$XDG_CURRENT_DESKTOP")
+ 
+ distro_error=0
+ de_error=0
+-
+-wd=$PWD
+-
+-# update icons for dark/light GTK themes
+-read -p "Use icons for dark GTK+ themes? [y/N] " yn
+-case $yn in
+-    [Yy]* )
+-        rm "$wd/actions/22x22" "$wd/devices/scalable" "$wd/panel/16" \
+-        "$wd/panel/24" "$wd/places/16x16" "$wd/status/scalable"
+-
+-        ln -sfr "$wd/actions/22x22-dark" "$wd/actions/22x22"
+-        ln -sfr "$wd/devices/scalable-dark" "$wd/devices/scalable"
+-        ln -sfr "$wd/emblems/scalable/avatar-default-dark.svg" "$wd/emblems/scalable/avatar-default.svg"
+-        ln -sfr "$wd/places/16x16-dark" "$wd/places/16x16"
+-        echo "Updated theme to use icons for dark GTK+ themes."
+-        ;;
+-
+-        * )
+-        rm "$wd/actions/22x22" "$wd/devices/scalable" "$wd/panel/16" \
+-        "$wd/panel/24" "$wd/places/16x16" "$wd/status/scalable"
+-
+-        ln -sfr "$wd/actions/22x22-light" "$wd/actions/22x22"
+-        ln -sfr "$wd/devices/scalable-light" "$wd/devices/scalable"
+-        ln -sfr "$wd/emblems/scalable/avatar-default-light.svg" "$wd/emblems/scalable/avatar-default.svg"
+-        ln -sfr "$wd/places/16x16-light" "$wd/places/16x16"
+-        echo "Updated theme to use icons for light GTK+ themes."
+-        ;;
+-esac
+-read -p "Use icons for a dark coloured panel? [y/N] " yn
+-case $yn in
+-    [Yy]* )
+-        ln -sfr "$wd/panel/16-dark" "$wd/panel/16"
+-        ln -sfr "$wd/panel/24-dark" "$wd/panel/24"
+-        ln -sfr "$wd/status/scalable-dark" "$wd/status/scalable"
+-        echo "Updated theme to use dark icons for the panel."
+-        ;;
+-    * )
+-        ln -sfr "$wd/panel/16-light" "$wd/panel/16"
+-        ln -sfr "$wd/panel/24-light" "$wd/panel/24"
+-        ln -sfr "$wd/status/scalable-light" "$wd/status/scalable"
+-        echo "Updated theme to use light icons for the panel."
+-        ;;
+-esac
++wd="$PWD"
++
++if [ "$interactive" = yes ]; then
++	# update icons for dark/light GTK themes
++	read -p "Use icons for dark GTK+ themes? [y/N] " yn
++	case $yn in
++		[Yy]* ) use_icons dark ;;
++		* )     use_icons light ;;
++	esac
++else
++	use_icons "$icons"
++fi
++
++
++if [ "$interactive" = yes ]; then
++	read -p "Use icons for a dark coloured panel? [y/N] " yn
++	case $yn in
++		[Yy]* ) use_panel_icons dark  ;;
++		* )     use_panel_icons light ;;
++	esac
++else
++	use_panel_icons "$panel_icons"
++fi
+ 
+ # attempt to detect distribution and then update distributor logos
+ cd "$wd/places/scalable"
+ 
+ ! distromatch && alt_distromatch
+ 
+-# prompt for desktop environment integration instead of distro
+-read -p "Use distributor logo from desktop environment? [y/N] " yn
+-case $yn in
+-    [Yy]* )
+-        case $DE in
+-            budgie|budgiegnome) ln -sf distributor-logo-budgie.svg distributor-logo.svg ;;
+-            gnome) ln -sf distributor-logo-gnome.svg distributor-logo.svg ;;
+-            unity) ln -sf distributor-logo-unity.svg distributor-logo.svg ;;
+-            xfce) ln -sf distributor-logo-xfce.svg distributor-logo.svg ;;
+-            lxde) ln -sf distributor-logo-lxde.svg distributor-logo.svg ;;
+-            kde) ln -sf distributor-logo-kde.svg distributor-logo.svg ;;
+-            *)
+-                echo "Could not determine desktop environment... Using distribution logo."
+-                de_error=1
+-            ;;
+-         esac
+-    ;;
+-    * ) if [ $distro_error -eq 0 ]; then
+-            echo "Using distribution logo."
+-        elif [ $distro_error -eq 1 ] || [ $de_error -eq 1 ]; then
+-            echo "Could not determine distributor logo, you may need to set this manually in places/scalable/"
+-        fi
+-    ;;
+-esac
++if [ "$interactive" = yes ]; then
++	# prompt for desktop environment integration instead of distro
++	read -p "Use distributor logo from desktop environment? [y/N] " yn
++	case $yn in
++		[Yy]* ) use_distro_logo yes ;;
++		* )     use_distro_logo no  ;;
++	esac
++else
++	use_distro_logo "$distro_logo"
++fi
+ 
+ ln -sf distributor-logo.svg start-here.svg # fixes potentially broken link
+ 
