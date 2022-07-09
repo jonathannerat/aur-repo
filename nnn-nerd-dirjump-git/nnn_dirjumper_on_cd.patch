@@ -1,8 +1,8 @@
-diff --git a/nnn/src/nnn.c b/nnn/src/nnn.c
-index 4d9a60b..e9ebfb3 100644
+diff --git a/src/nnn.c b/src/nnn.c
+index 78891bc5..8f6ea96b 100644
 --- a/nnn/src/nnn.c
 +++ b/nnn/src/nnn.c
-@@ -727,6 +727,9 @@ static char mv[] = "mv -i";
+@@ -752,6 +752,9 @@ static char mv[] = "mv -i";
  /* Archive commands */
  static const char * const archive_cmd[] = {"atool -a", "bsdtar -acvf", "zip -r", "tar -acvf"};
  
@@ -10,12 +10,12 @@ index 4d9a60b..e9ebfb3 100644
 +static char dirjumper[] = "zoxide add";
 +
  /* Tokens used for path creation */
- #define TOK_SSN 0
- #define TOK_MNT 1
-@@ -6547,6 +6550,10 @@ nochange:
+ #define TOK_BM  0
+ #define TOK_SSN 1
+@@ -6930,6 +6933,10 @@ nochange:
+ 				}
  
- 				cdprep(lastdir, lastname, path, newpath)
- 					? (presel = FILTER) : (watch = TRUE);
+ 				cdprep(lastdir, lastname, path, newpath) ? (presel = FILTER) : (watch = TRUE);
 +
 +				snprintf(g_buf, CMD_LEN_MAX, "%s %s", dirjumper, path);
 +				spawn(utils[UTIL_SH], "-c", g_buf, NULL, F_NOWAIT | F_NOTRACE);

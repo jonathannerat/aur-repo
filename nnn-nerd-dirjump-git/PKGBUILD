@@ -2,7 +2,7 @@
 # Contributor: Jonathan Teran <jonathan.nerat at gmail dot com>
 
 pkgname=nnn-nerd-dirjump-git
-pkgver=4.1.1.r104.gc0dceb18
+pkgver=4.5.r52.g47845870
 pkgrel=1
 pkgdesc="Custom build of nnn with Nerd Fonts and directory jumper support"
 arch=(x86_64)
@@ -29,7 +29,7 @@ conflicts=(nnn)
 source=("git+${url}.git"
         "nnn_dirjumper_on_cd.patch")
 md5sums=('SKIP'
-         '5dd3fed2020509dbb3597d55a85592f4')
+         '3c56446a2d8ed26d1c9830b7d8d8ac1c')
 
 pkgver() {
   cd nnn
